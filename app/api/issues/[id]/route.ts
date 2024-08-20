@@ -13,7 +13,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         return NextResponse.json(validation.error.format(), { status: 400 });
 
     const issue = await prisma.issue.findUnique({
-        where: { id: parseInt(params.id) },
+        where: { id: parseInt(params.id) }
     })
 
     if (!issue)
@@ -29,3 +29,20 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     return NextResponse.json(updatedIssue);
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+
+    const issue = await prisma.issue.findUnique({
+        where: { id: parseInt(params.id) }
+    })
+
+    if (!issue)
+        return NextResponse.json({ error: "Invalid issue" }, { status: 404 })
+
+    const deletedIssue = await prisma.issue.delete({
+        where: { id: issue.id },
+    })
+
+    return NextResponse.json({});
+}
+
