@@ -9,16 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
 
 const SelectAssignee = ({ issue }: { issue: Issue }) => {
-  const {
-    data: users,
-    isLoading,
-    error,
-  } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: () => axios.get("/api/users").then((res) => res.data),
-    staleTime: 60 * 60 * 1000, //60 mins
-    retry: 3,
-  });
+  const { data: users, isLoading, error } = useUsers();
   //   const [users, setUsers] = useState<User[]>([]);
   //   useEffect(() => {
   //     const fetchUsers = async () => {
@@ -31,19 +22,22 @@ const SelectAssignee = ({ issue }: { issue: Issue }) => {
   if (isLoading) return null;
 
   if (error) return null;
+
+  const assignIssue = (userId: string) => {
+    axios
+      .patch("/api/issues/" + issue.id, {
+        assignedToUserId: userId === "unassigned" ? null : userId,
+      })
+      .catch(() => {
+        toast.error("Changes could not be saved");
+      });
+  };
+
   return (
     <>
       <Select.Root
         defaultValue={issue.assignedToUserId || "unassigned"}
-        onValueChange={(userId) => {
-          axios
-            .patch("/api/issues/" + issue.id, {
-              assignedToUserId: userId === "unassigned" ? null : userId,
-            })
-            .catch(() => {
-              toast.error("Changes could not be saved");
-            });
-        }}
+        onValueChange={assignIssue}
       >
         <Select.Trigger placeholder="Assign..." />
         <Select.Content>
@@ -62,5 +56,13 @@ const SelectAssignee = ({ issue }: { issue: Issue }) => {
     </>
   );
 };
+
+const useUsers = () =>
+  useQuery<User[]>({
+    queryKey: ["users"],
+    queryFn: () => axios.get("/api/users").then((res) => res.data),
+    staleTime: 60 * 60 * 1000, //60 mins
+    retry: 3,
+  });
 
 export default SelectAssignee;
