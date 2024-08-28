@@ -1,7 +1,7 @@
 import prisma from "@/prisma/client";
 import { Issue, Status } from "@prisma/client";
 import { ArrowUpIcon } from "@radix-ui/react-icons";
-import { Table } from "@radix-ui/themes";
+import { Flex, Table } from "@radix-ui/themes";
 import NextLink from "next/link";
 import IssueStatusBadge from "../components/IssueStatusBadge";
 import Link from "../components/Link";
@@ -57,7 +57,7 @@ const IssuesPage = async ({ searchParams }: Props) => {
 
   const issueCount = await prisma.issue.count({ where: { status: status } });
   return (
-    <div>
+    <Flex direction="column" gap="3">
       <IssueActions />
 
       <Table.Root variant="surface">
@@ -103,7 +103,7 @@ const IssuesPage = async ({ searchParams }: Props) => {
         pageSize={pageSize}
         currentPage={page}
       />
-    </div>
+    </Flex>
   );
 };
 
