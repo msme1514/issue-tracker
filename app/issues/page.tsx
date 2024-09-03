@@ -1,6 +1,6 @@
 import prisma from "@/prisma/client";
 import { Issue, Status } from "@prisma/client";
-import { ArrowUpIcon } from "@radix-ui/react-icons";
+import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 import { Flex, Table } from "@radix-ui/themes";
 import NextLink from "next/link";
 import IssueStatusBadge from "../components/IssueStatusBadge";
@@ -10,7 +10,12 @@ import { pages } from "next/dist/build/templates/app-page";
 import Pagination from "../components/Pagination";
 
 interface Props {
-  searchParams: { status: Status; orderBy: keyof Issue; page: string };
+  searchParams: {
+    status: Status;
+    orderBy: keyof Issue;
+    page: string;
+    sortOrder: "asc" | "desc";
+  };
 }
 
 const IssuesPage = async ({ searchParams }: Props) => {
@@ -40,8 +45,14 @@ const IssuesPage = async ({ searchParams }: Props) => {
   const orderBy = columns
     .map((column) => column.value)
     .includes(searchParams.orderBy)
-    ? { [searchParams.orderBy]: "asc" }
+    ? { [searchParams.orderBy]: searchParams.sortOrder }
     : undefined;
+
+  const toggleOrder = () => {
+    return !searchParams.sortOrder || searchParams.sortOrder === "desc"
+      ? "asc"
+      : "desc";
+  };
 
   const page = parseInt(searchParams.page) || 1;
   const pageSize = 10;
@@ -67,14 +78,21 @@ const IssuesPage = async ({ searchParams }: Props) => {
               <Table.ColumnHeaderCell key={column.value}>
                 <NextLink
                   href={{
-                    query: { ...searchParams, orderBy: column.value },
+                    query: {
+                      ...searchParams,
+                      orderBy: column.value,
+                      sortOrder: toggleOrder(),
+                    },
                   }}
                 >
                   {column.label}
                 </NextLink>
-                {column.value === searchParams.orderBy && (
-                  <ArrowUpIcon className="inline" />
-                )}
+                {column.value === searchParams.orderBy &&
+                  (searchParams.sortOrder === "asc" ? (
+                    <ArrowUpIcon className="inline" />
+                  ) : (
+                    <ArrowDownIcon className="inline" />
+                  ))}
               </Table.ColumnHeaderCell>
             ))}
           </Table.Row>

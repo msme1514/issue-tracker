@@ -11,6 +11,7 @@ import EditIssueButton from "./EditIssueButton";
 import { getServerSession } from "next-auth";
 import authOptions from "@/app/auth/authOptions";
 import SelectAssignee from "./SelectAssignee";
+import SelectStatus from "./SelectStatus";
 
 interface Props {
   params: { id: string };
